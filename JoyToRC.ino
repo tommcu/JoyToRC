@@ -3,6 +3,7 @@
 #include <hid.h>
 #include <hiduniversal.h>
 
+#include <outputchannel.h>
 #include <PPMOut.h>
 #include <Timer1.h>
 
@@ -16,10 +17,8 @@ HIDUniversal                                    Hid(&Usb);
 JoystickEvents                                  JoyEvents;
 JoystickReportParser                            Joy(&JoyEvents);
 
-uint16_t ppm_input[CHANNELS];
-uint8_t ppm_work[PPMOUT_WORK_SIZE(CHANNELS)];
-rc::PPMOut ppm_out(CHANNELS, ppm_input, ppm_work, CHANNELS);
-int test = 0;
+//rc::PPMOut ppm_out(CHANNELS);
+//int test = 0;
 
 void setup() {
   Serial.begin( 115200 );
@@ -33,51 +32,31 @@ void setup() {
   if (!Hid.SetReportParser(0, &Joy))
       Serial.println("oooohhhh shhiiiitttt");
   //    ErrorMessage<uint8_t>(PSTR("SetReportParser"), 1);
+/*
+  //rc::Timer1::init();
+  
+  //for (uint8_t i = 0;  i < CHANNELS; ++i)
+  //{
+  //  rc::setOutputChannel(static_cast<rc::OutputChannel>(i), 1500);
+  //}
 
-	for (uint8_t i = 0;  i < CHANNELS; ++i)
-	{	
-		ppm_input[i] = 0;
-	}
-  rc::Timer1::init();
-  //ppm_out.setPulseLength(13); //what does the 9x expect?
-  //ppm_out.setPauseLength(300); //as above?
-  ppm_out.start(8); //use pin 9 or 10
+  ppm_out.setPulseLength(250);
+  ppm_out.setPauseLength(15000);
+  ppm_out.start(8); // pin 9 or 10 are preferred, but out of the question due to USB Shield
+*/
 }
 
 void loop() {
   Usb.Task();
   
-  ppm_input[0] = map(JoyEvents.X, 0, 0xFF, 1000, 2000);
-  ppm_input[1] = map(JoyEvents.Y, 0, 0xFF, 1000, 2000);
-  ppm_input[2] = map(JoyEvents.Z, 0, 0xFF, 1000, 2000);
-  ppm_input[3] = map(JoyEvents.Rz, 0, 0xFF, 1000, 2000);
-  /*ppm_input[0] = map(0, 0, 100, 1000, 2000);
-  ppm_input[1] = map(50, 0, 100, 1000, 2000);
-  ppm_input[2] = map(100, 0, 100, 1000, 2000);
-  ppm_input[3] = map(test, 0, 100, 1000, 2000);*/
-  /*ppm_input[0] = map(50, 0, 100, 1000, 2000);
-  ppm_input[1] = map(50, 0, 100, 1000, 2000);
-  ppm_input[2] = map(50, 0, 100, 1000, 2000);
-  ppm_input[3] = map(50, 0, 100, 1000, 2000);*/
-  ppm_out.update();
+  /*rc::setOutputChannel(static_cast<rc::OutputChannel>(0), map(JoyEvents.X, 0, 0xFF, 1000, 2000));
+  rc::setOutputChannel(static_cast<rc::OutputChannel>(1), map(JoyEvents.Y, 0, 0xFF, 1000, 2000));
+  rc::setOutputChannel(static_cast<rc::OutputChannel>(2), map(JoyEvents.Z, 0, 0xFF, 1000, 2000));
+  rc::setOutputChannel(static_cast<rc::OutputChannel>(3), map(JoyEvents.Rz, 0, 0xFF, 1000, 2000));
+  ppm_out.update();*/
   
-  /*test += 50;
-  
-  if (test > 100)
-    test = 0;
-  
-	for (uint8_t i = 0;  i < CHANNELS; ++i)
-	{	
-    Serial.print(i+1);
-  Serial.print(": ");
-  Serial.print(ppm_input[i]);
-    Serial.print(" ");
-	}
-  Serial.println();
-  
-  delay(1000);*/
-  /*if (JoyEvents.Z == 0xFF) {
-    Serial.println(JoyEvents.X);
-    Serial.println(ppm_input[0]);
-  }*/
+  Serial.println(JoyEvents.X);
+  Serial.println(JoyEvents.Y);
+  Serial.println(JoyEvents.Z);
+  delay(200);
 }
